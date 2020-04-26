@@ -99,14 +99,14 @@ def chiSquareModel():
     #plotter histogrammene og tilpassingene
 
     plt.subplot(2,1,1)
-    plt.title("Histogram av treningsdata, H0")
+    plt.title("(a) Histogram av treningsdata, H0")
     plt.xlim(0,14)
     plt.hist(H0, bins=bins, density=True)
     plt.plot(x, H0_pdf)
     plt.legend(["Kji-kvadrat tilpasset", "Histogram"])
 
     plt.subplot(2,1,2)
-    plt.title("Histogram av treningsdata, H1")
+    plt.title("(b) Histogram av treningsdata, H1")
     plt.xlim(0,14)
     plt.hist(H1, bins=bins, density=True)
     plt.plot(x, H1_pdf)
@@ -119,24 +119,20 @@ def ROC():
     var_s = np.var(loadFile('T3_data_sigma_s'))
     var_w = np.var(loadFile('T3_data_sigma_w'))
 
-    #Hjelpefunksjon for å regne ut n, grenseverdien for detektoren
-    def n (l, K, var_w, var_s):
-            return (np.log(l)*np.log(var_w) - np.log(var_s + var_w) )/((1/(var_s + var_w) - np.log(l)/var_w) ) 
-
     #Plotter ROC for ulike K
-    for K in range(1,52,10):
+    for K in range(2,33,5):
         Pfa = np.linspace(0,1,1000)
-        n = stats.chi2.isf(Pfa,df=K)*var_w/K
-        Pd = stats.chi2.sf(K*n/((var_w + var_s)),df=K)
+        n = stats.chi2.isf(Pfa,df=2*K)*var_w/(2*K)
+        Pd = stats.chi2.sf((2*K)*n/((var_w + var_s)),df=2*K)
         plt.xlim(0,1)
         plt.ylim(0,1)
         plt.plot(Pfa,Pd, label=("K = " + str(K)))
 
-    legend = ["K = " + str(i) for i in range(1,52,10)]
+    legend = ["K = " + str(i) for i in range(2,33,5)]
     plt.legend(legend)
     plt.xlabel("Sannsynlighet for falsk alarm")
     plt.ylabel("Sannsynlighet for deteksjon")
-    plt.title("ROC av kji-kvadrat detektor")
+    #plt.title("ROC av kji-kvadrat detektor")
     plt.show()
 
 def compareDistributions():
@@ -152,21 +148,21 @@ def compareDistributions():
     plt.ylabel("Sannsynlighet")
     #Regner ut fordelingene til P_d og P_fa
     #Dette er den normalfordelte tilnærmingen
-    Pfa = stats.norm.sf( (K*((n / var_w) - 1))/np.sqrt(2 * K))
-    Pd = stats.norm.sf((K*((n / (var_w + var_s)) - 1))/np.sqrt(2*K))
+    Pfa = stats.norm.sf( ((2*K)*((n / var_w) - 1))/np.sqrt(4 * K))
+    Pd = stats.norm.sf(((2*K)*((n / (var_w + var_s)) - 1))/np.sqrt(4*K))
 
     plt.plot(n,Pfa)
     plt.plot(n,Pd)
 
     #Dette er kji-kvadratfordelingen
-    Pfa = stats.chi2.sf(K*n/(var_w), df=K)
-    Pd = stats.chi2.sf(K*n/((var_w + var_s)), df=K)
+    Pfa = stats.chi2.sf((2*K)*n/(var_w), df=(2*K))
+    Pd = stats.chi2.sf((2*K)*n/((var_w + var_s)), df=(2*K))
 
     plt.plot(n,Pfa, linestyle="--")
     plt.plot(n,Pd, linestyle="--")
 
     plt.legend(("Falsk alarm, normalfordelt","Deteksjon, normalfordelt","Falsk alarm, kji-kvadrat","Deteksjon, kji-kvadrat") )
-    plt.title("Sammenligning av kji-kvadrat-detektor og normalfordelt detektor")
+    #plt.title("Sammenligning av kji-kvadrat-detektor og normalfordelt detektor")
     plt.show()
 
 def complexity():
@@ -174,14 +170,11 @@ def complexity():
     var_s = np.var(loadFile('T3_data_sigma_s'))
     var_w = np.var(loadFile('T3_data_sigma_w'))
 
-    Pfa = 0.1
-    Pda = np.linspace(0.95,0.5, 100)
-
     #hjelpefunksjon for å regne ut K
     def k (pfa,pda):
         iQpfa = stats.norm.isf(pfa)
         iQpda = stats.norm.isf(pda)
-        return ( (-np.sqrt(2)*(iQpfa - iQpda*(var_w + var_s)/var_w) - np.sqrt(  2*(iQpfa - iQpda*(var_w + var_s)/var_w)**2  + 4  )   ) /2   )**2
+        return ( (-np.sqrt(2)*(iQpfa - iQpda*(var_w + var_s)/var_w) - np.sqrt(  2*(iQpfa - iQpda*(var_w + var_s)/var_w)**2  + 4  )   ) /2   )**2/2
     
     #plotter for ulike sannsynligheter for falsk alarm
     legend = []
@@ -207,52 +200,52 @@ def experiment():
     # disse 100 inneholder et signal på 256 sampler som er ledige kanaler eller ikke ledig
     signal = loadFile("T8_numerical_experiment")
 
-    test = np.sum(np.square(np.abs(signal)), axis=0)/K
+    test = np.sum(np.square(np.abs(signal)), axis=0)/(K)
 
     # hjelpefunksjon for plotting av detektoreksperimentet
     # n er grensen for detektoren
     def plotDetector(data, n):
         plt.xlabel("Realiseringer")
         plt.ylabel("Gjennomsnittlig effekt")
-        color_chi = np.where((data > n_chi) , 'blue', 'orange')
-        i = np.where((data > n_chi))
+
+        i = np.where((data > n))
         detected = data[i]
         plt.scatter(i, detected, color="blue", marker=".")
-        i = np.where((data < n_chi))
+        i = np.where((data < n))
         not_detected = data[i]
         plt.scatter(i, not_detected, color="orange", marker=".")
-        plt.plot(np.arange(0,len(data)), np.ones(len(data))*n_chi)
+        plt.plot(np.arange(0,len(data)), np.ones(len(data))*n)
         plt.legend(["Detektor", "Detektert", "Ikke detektert"])
     # Setter først sannsynligheten for falsk alarm til 10%
     Pfa = 0.1
     # Regner ut grensene til de to detektorene, en for kji-kvadratfordeling og en for den normalfordelte
-    n_chi = stats.chi2.isf(Pfa,df=K) * var_w / K
-    n_norm = var_w * (stats.norm.isf(Pfa)*np.sqrt(2 * K) + K)/K
+    n_chi = stats.chi2.isf(Pfa,df=(2*K)) * var_w / (2*K)
+    n_norm = var_w * (stats.norm.isf(Pfa)*np.sqrt(4 * K) + (2*K))/(2*K)
 
     # Plotter de to
     plt.subplots_adjust(hspace=0.4)
     plt.subplot(2,1,1)
-    plt.title("Kji-kvadrat NP detektor, Pfa = 0.1")
+    plt.title("(a) Kji-kvadrat NP detektor, Pfa = 0.1")
     plotDetector(test,n_chi)
 
     plt.subplot(2,1,2)
-    plt.title("Normalfordelt NP detektor, Pfa = 0.1")
+    plt.title("(b) Normalfordelt NP detektor, Pfa = 0.1")
     plotDetector(test,n_norm)
     plt.show()
 
     # setter så Pfa til 1% og plotter på nytt
     Pfa = 0.01
 
-    n_chi = stats.chi2.isf(Pfa,df=K) * var_w / K
-    n_norm = var_w * (stats.norm.isf(Pfa)*np.sqrt(2 * K) + K)/K
+    n_chi = stats.chi2.isf(Pfa,df=(2*K)) * var_w / (2*K)
+    n_norm = var_w * (stats.norm.isf(Pfa)*np.sqrt(4 * K) + (2*K))/(2*K)
 
     plt.subplots_adjust(hspace=0.4)
     plt.subplot(2,1,1)
-    plt.title("Kji-kvadrat NP detektor, Pfa = 0.01")
+    plt.title("(a) Kji-kvadrat NP detektor, Pfa = 0.01")
     plotDetector(test,n_chi)
 
     plt.subplot(2,1,2)
-    plt.title("Normalfordelt NP detektor, Pfa = 0.01")
+    plt.title("(b) Normalfordelt NP detektor, Pfa = 0.01")
     plotDetector(test,n_norm)
     plt.show()
 
