@@ -1,3 +1,20 @@
+  
+# MIT License
+# Copyright (c) 2020 Endre Dåvøy
+
+# For å kjøre filen kjør for eksempel python3 .\detection.py
+# Husk å kjøre kommandoen i samme mappe som dette scriptet er
+# Husk at det må være en mappe med navn "data" der alle trenings- og testdataene er
+# 
+# For å kjøre scriptet må en ha flere biblioteker installert:
+#       scipy
+#       numpy
+#       matplotlib
+
+# For å installere bibliotekene kjør f.eks pip install scipy
+
+# I tillegg må python være av versjon 3 eller høyere for å få printingen til å fungere
+
 import scipy.io
 import numpy as np
 import matplotlib.pyplot as plt
