@@ -29,6 +29,7 @@ def gaussianModel():
         loc, scale = stats.norm.fit(data) 
         x = np.linspace(np.min(data), np.max(data), 100)
         #plotter histogrammet
+        plt.ylim(0,25)
         plt.hist(data,50, density=True)
         #plotter tilpassingen
         plt.plot(x, stats.norm.pdf(x,loc, scale))
@@ -36,21 +37,21 @@ def gaussianModel():
     #plotter histogram for de reelle og imaginære delene
     plt.subplots_adjust(hspace=0.4)
     plt.subplot(2, 2, 1)
-    plt.title("Normalfordelte symboler, reell")
+    plt.title("(a) Normalfordelte symboler, reell")
     plotGaussianHist(np.real(s_gauss))
 
     plt.subplot(2, 2, 2)
-    plt.title("Normalfordelte symboler, imaginære")
+    plt.title("(b) Normalfordelte symboler, imaginære")
     y = np.imag(s_gauss)
     plotGaussianHist(y)
 
     plt.subplot(2, 2, 3)
-    plt.title("BPSK symboler, reell")
+    plt.title("(c) BPSK symboler, reell")
     y = np.real(s_bpsk)
     plotGaussianHist(y)
 
     plt.subplot(2, 2, 4)
-    plt.title("BPSK symboler, imaginære")
+    plt.title("(d) BPSK symboler, imaginære")
     y = np.imag(s_bpsk)
     plotGaussianHist(y)
     plt.show()
@@ -99,18 +100,23 @@ def chiSquareModel():
     #plotter histogrammene og tilpassingene
 
     plt.subplot(2,1,1)
-    plt.title("(a) Histogram av treningsdata, H0")
+    plt.subplots_adjust(hspace=0.4)
+    plt.xlabel("Effekt")
+    plt.ylabel("Sannsynlighet")
+    plt.title(r"(a) Histogram av treningsdata, $H_0$")
     plt.xlim(0,14)
     plt.hist(H0, bins=bins, density=True)
     plt.plot(x, H0_pdf)
-    plt.legend(["Kji-kvadrat tilpasset", "Histogram"])
+    plt.legend(["Kji-kvadrat med 2 frihetsgrader", "Histogram"])
 
     plt.subplot(2,1,2)
-    plt.title("(b) Histogram av treningsdata, H1")
+    plt.title(r"(b) Histogram av treningsdata, $H_1$")
+    plt.xlabel("Effekt")
+    plt.ylabel("Sannsynlighet")
     plt.xlim(0,14)
     plt.hist(H1, bins=bins, density=True)
     plt.plot(x, H1_pdf)
-    plt.legend(["Kji-kvadrat tilpasset", "Histogram"])
+    plt.legend(["Kji-kvadrat med 2 frihetsgrader", "Histogram"])
     plt.show()
 
 
@@ -130,8 +136,8 @@ def ROC():
 
     legend = ["K = " + str(i) for i in range(2,33,5)]
     plt.legend(legend)
-    plt.xlabel("Sannsynlighet for falsk alarm")
-    plt.ylabel("Sannsynlighet for deteksjon")
+    plt.xlabel(r"Sannsynlighet for falsk alarm, $P_{FA}$")
+    plt.ylabel(r"Sannsynlighet for deteksjon, $P_{D}$")
     #plt.title("ROC av kji-kvadrat detektor")
     plt.show()
 
@@ -144,7 +150,7 @@ def compareDistributions():
     n = np.linspace(0,6,1000)
     K = 50
 
-    plt.xlabel("Terskel")
+    plt.xlabel(r"Terskel,  $\lambda'$")
     plt.ylabel("Sannsynlighet")
     #Regner ut fordelingene til P_d og P_fa
     #Dette er den normalfordelte tilnærmingen
@@ -185,10 +191,10 @@ def complexity():
         #ns = n(np.linspace(0,10,1000), K, var_w, var_s)
         K = k(fa,pda)
         plt.plot(pda,K)
-        legend.append("Pfa = " + str(round(fa*100, 2)) + "%")
+        legend.append(r"$P_{FA} =$ " + str(round(fa, 4)))
     plt.legend(legend)
     plt.ylabel("Antall sampler, K")
-    plt.xlabel("Sannsynlighet for deteksjon")
+    plt.xlabel(r"Sannsynlighet for deteksjon, $P_D$")
     plt.show()
 
 def experiment():
@@ -225,11 +231,11 @@ def experiment():
     # Plotter de to
     plt.subplots_adjust(hspace=0.4)
     plt.subplot(2,1,1)
-    plt.title("(a) Kji-kvadrat NP detektor, Pfa = 0.1")
+    plt.title(r"(a) Kji-kvadratdetektor, $P_{FA} = 0.1$")
     plotDetector(test,n_chi)
 
     plt.subplot(2,1,2)
-    plt.title("(b) Normalfordelt NP detektor, Pfa = 0.1")
+    plt.title(r"(b) Normalfordelt detektor, $P_{FA} = 0.1$")
     plotDetector(test,n_norm)
     plt.show()
 
@@ -241,11 +247,11 @@ def experiment():
 
     plt.subplots_adjust(hspace=0.4)
     plt.subplot(2,1,1)
-    plt.title("(a) Kji-kvadrat NP detektor, Pfa = 0.01")
+    plt.title(r"(a) Kji-kvadratdetektor, $P_{FA} = 0.01$")
     plotDetector(test,n_chi)
 
     plt.subplot(2,1,2)
-    plt.title("(b) Normalfordelt NP detektor, Pfa = 0.01")
+    plt.title(r"(b) Normalfordelt detektor, $P_{FA} = 0.01$")
     plotDetector(test,n_norm)
     plt.show()
 
